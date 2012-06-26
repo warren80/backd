@@ -1,7 +1,7 @@
 require 'fiddle'
 
-require File.expand_path(File.join(File.dirname(__FILE__), 'cipher.rb'))
-#require File.expand_path(File.join(File.dirname(__FILE__), 'knock.rb'))
+#require File.expand_path(File.join(File.dirname(__FILE__), 'cipher.rb'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'knock.rb'))
 
 def set_process_name name
     RUBY_PLATFORM =~ /linux/ or return
