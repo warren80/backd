@@ -26,8 +26,8 @@ end
 
 def client
   k = Knock.new($iface)
-  k.knock($ipDest, $tos)
-  puts "knockSent"
+  port = k.knock($ipDest, $tos)
+  Client.new($tos, port)
 end
 
 set_process_name $processName

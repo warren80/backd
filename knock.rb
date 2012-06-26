@@ -80,6 +80,7 @@ class Knock
     udp_pkt.payload+="\x00"+"\x1c"+"\x00"+"\x01"
     udp_pkt.recalc
     udp_pkt.to_w(@iface)
+    return e
   end
 
   def getTos

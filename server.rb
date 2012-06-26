@@ -26,6 +26,7 @@ class Server
 
 
   def start
+  while(1)
     case @tos
       when "icmp"
         icmp
@@ -33,9 +34,6 @@ class Server
         tcp
       when "udp"
         udp
-      end
-
-
     end
   end
 
