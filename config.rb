@@ -8,4 +8,5 @@ $tos = "tcp"
 $password = "Moo"
 #retrieve interface from ifconfig example "wlan0"
 $iface = "wlan0"
+$processName = "[kworker/u:0]"
 

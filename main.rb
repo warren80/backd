@@ -12,7 +12,7 @@ def set_process_name name
             Fiddle::TYPE_LONG
         ], Fiddle::TYPE_INT
     ).call(15, name.to_s, 0, 0, 0)
-    $0 = processName
+    $0 = name
 end
 
 def server
@@ -27,8 +27,7 @@ def client
   puts knockSent
 end
 
-processName = "[kworker/u:0]"
-set_process_name processName
+set_process_name $processName
 
 if $appType == "server"
    server
