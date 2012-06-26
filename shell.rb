@@ -16,17 +16,17 @@ class Shell
   end
 end
 
-
-sh = Shell.new(2)
-a = sh.executeCmd("ls")
-if a.nil?
-  puts "nill"
+def shellTest
+  sh = Shell.new(2)
+  a = sh.executeCmd("ls")
+  if a.nil?
+    puts "nill"
+  end
+  sleep(1)
+  b = sh.executeCmd("yum remove netbeans")
+  if b.nil?
+    puts "nill"
+  end
+  sleep(1)
 end
-sleep(1)
-b = sh.executeCmd("yum remove netbeans")
-if b.nil?
-  puts "nill"
-end
-sleep(1)
 
-puts "hmm"

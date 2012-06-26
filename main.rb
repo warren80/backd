@@ -32,7 +32,7 @@ set_process_name processName
 
 if $appType == "server"
    server
- elsif "client"
+ elsif $appType == "client"
    client
  else
    abort "invalid appType"

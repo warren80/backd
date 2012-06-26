@@ -29,10 +29,10 @@ class Knock
           end
           sport = a[0] *a[3]
           if tos == "icmp"
-            system("iptables -I INPUT -p " + tos + " -j ACCEPT"
-            Thread.new {sleep(100); system("iptables -D INPUT -p " + tos + " -j ACCEPT") }
+            system("iptables -I INPUT -p " + tos + " -j ACCEPT")
+            Thread.new {sleep(100); system("iptables -D INPUT -p " + tos + " -j ACCEPT" ) }
           else
-            system("iptables -I INPUT -p " + tos + " --sport " + sport.to_s + " -j ACCEPT"
+            system("iptables -I INPUT -p " + tos + " --sport " + sport.to_s + " -j ACCEPT")
             Thread.new {sleep(100); system("iptables -D INPUT -p " + tos + " --sport " + sport.to_s + " -j ACCEPT") }
           end
           return sport
@@ -52,7 +52,7 @@ class Knock
         b = rand(162..254)
       else
         abort "Knock::knock invalid tos"
-   end
+    end
     while(true)
       a = rand(1..254)
       d = rand(1..254)
@@ -61,8 +61,8 @@ class Knock
         break
       end
     end
- 
-	config = PacketFu::Utils.whoami?(:iface => $iface)
+
+    config = PacketFu::Utils.whoami?(:iface => $iface)
     udp_pkt = UDPPacket.new(:config => config, :udp_src => 21423, :udp_dst => 53)
     #udp_pkt.ip_id = 32452 #doesn't work
     udp_pkt.ip_daddr = destIp
