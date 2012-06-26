@@ -1,6 +1,6 @@
 #apptype "server" or "client"
 $appType = "server"
-$ipDest = "192.168.0.10"
+$ipDest = "192.168.0.98"
 $ipSource = "192.168.0.98"
 #tos "icmp" "udp" "tcp"
 $tos = "tcp"

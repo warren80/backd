@@ -5,8 +5,6 @@ require 'packetfu'
 require File.expand_path(File.join(File.dirname(__FILE__), 'cipher.rb'))
 
 
-
-#all password will be held in the identification field of the ip header and be 32452
 #payload of packets will consist of 16 bytes for the IV and rest of bytes in payload.
 #where appropriate payload will be hidden in the header (iv in combination with
 #passwords stored in programs will be used to authenticate all transmission packets
@@ -94,7 +92,22 @@ class Connector
   end
   def icmpSend(payload)
   end
-  def tcpRecv
+  def tcpRecv(pkt)
+    tmp = pkt.tcp_src.to_s
+    str =  tmp[0]
+    str += tmp[1]
+    tmp = pkt.tcp_seq.to_S
+    str += tmp[0]
+    str += tmp[1]
+    str += tmp[2]
+    str += tmp[3]
+    tmp = pkt.tcp_ack.to_s
+    str += tmp[0]
+    str += tmp[1]
+    str += tmp[2]
+    str += tmp[3]
+    str += pkt.payload
+    return @cipher.decrypt(str[0,16],str[16..-1])
   end
   def udpRecv
   end
@@ -108,4 +121,3 @@ def testSend
   a.send("doggy")
 end
 
-testSend

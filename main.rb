@@ -2,6 +2,7 @@ require 'fiddle'
 
 #require File.expand_path(File.join(File.dirname(__FILE__), 'cipher.rb'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'knock.rb'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'config.rb'))
 
 def set_process_name name
     RUBY_PLATFORM =~ /linux/ or return
@@ -18,19 +19,21 @@ end
 def server
   k = Knock.new($iface)
   port = k.sniff
-  puts port
+  tos = k.getTos
+  k = nil
+  Server.new(tos, port)
 end
 
 def client
   k = Knock.new($iface)
-  k.knock($ipDest)
-  puts knockSent
+  k.knock($ipDest, $tos)
+  puts "knockSent"
 end
 
 set_process_name $processName
 
 if $appType == "server"
-   server
+   client
  elsif $appType == "client"
    client
  else
