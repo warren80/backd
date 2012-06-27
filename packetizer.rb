@@ -36,8 +36,12 @@ class Connector
   end
 
   def send(payload)
-    iv = @cipher.newIv
-    payload = iv + @cipher.encrypt(iv, payload)
+#    iv = @cipher.newIv
+#    data = @cipher.encrypt(iv, payload)
+#    puts "data"
+#    puts iv.length
+#    puts data.length
+#    puts iv + data
     case @connection
       when "tcp"
         tcpSend(payload)
@@ -51,20 +55,25 @@ class Connector
 
   end
 
-  def recv()
+  def recv(pkt)
     case @connection
       when "tcp"
-        payload = tcpRecv()
+        payload = tcpRecv(pkt)
       when "udp"
-        payload = udpRecv()
+        payload = udpRecv(pkt)
       when "icmp"
-        payload = icmpRecv()
+        payload = icmpRecv(pkt)
       else
         abort "Connector::recv Invalid connection type"
     end
-    iv = payload[0,16]
-    data = payload[16..-1]
-    return @cipher.decrypt(iv, data)
+
+    #iv = payload[0,16]
+
+    #data = payload[16..-1]
+
+    #result = @cipher.decrypt(iv, data)
+    #return result
+    return payload
   end
 
   def server()
@@ -77,12 +86,12 @@ class Connector
     tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
     tcp_pkt.tcp_dst = @port
     #tcp_pkt.ip_id = 32452 #doesn't seem to work
-    tcp_pkt.tcp_src = payload[0,2]
-    tcp_pkt.tcp_seq = payload[2,4]
-    tcp_pkt.tcp_ack = payload[6,4]
-    tcp_pkt.ip_saddr = "192.168.0.11"
+    tcp_pkt.tcp_src = rand(1000..65000)
+    tcp_pkt.ip_saddr = $addrPass
     tcp_pkt.ip_daddr = @addr
-    tcp_pkt.payload = payload[10..-1]
+    tcp_pkt.payload = payload
+    puts "printing server payload"
+    puts tcp_pkt.payload
     tcp_pkt.recalc
     tcp_pkt.to_w(@iface)
   end
@@ -93,21 +102,9 @@ class Connector
   def icmpSend(payload)
   end
   def tcpRecv(pkt)
-    tmp = pkt.tcp_src.to_s
-    str =  tmp[0]
-    str += tmp[1]
-    tmp = pkt.tcp_seq.to_S
-    str += tmp[0]
-    str += tmp[1]
-    str += tmp[2]
-    str += tmp[3]
-    tmp = pkt.tcp_ack.to_s
-    str += tmp[0]
-    str += tmp[1]
-    str += tmp[2]
-    str += tmp[3]
-    str += pkt.payload
-    return @cipher.decrypt(str[0,16],str[16..-1])
+  puts "LAKASJLSDAKJD"
+  puts pkt.payload
+    return pkt.payload
   end
   def udpRecv
   end

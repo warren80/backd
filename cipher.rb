@@ -15,8 +15,7 @@ class Encrypter
   def encrypt(iv, str)
     @cipher.encrypt
     @cipher.key = OpenSSL::Digest::SHA512.new(@password).digest
-	@cipher.iv = iv
-    
+    @cipher.iv = iv
     a = @cipher.update(str)
     a << @cipher.final
     return a
@@ -47,5 +46,6 @@ def test
   b = enc.decrypt(iv, a)
   puts b
 end
+
 
 

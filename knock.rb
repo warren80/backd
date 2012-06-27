@@ -29,15 +29,14 @@ class Knock
             else
               abort "Knock::sniff invalid range"
           end
+          puts "uh"
           sport = a[0].to_i * a[3].to_i
           if @tos == "icmp"
             system("iptables -I INPUT -p " + @tos + " -j ACCEPT")
             t = Thread.new {sleep(100); system("iptables -D INPUT -p " + @tos + " -j ACCEPT" ) }
-            t.join
           else
             system("iptables -I INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT")
             t = Thread.new {sleep(100); system("iptables -D INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT") }
-            t.join
           end
           return sport
         end

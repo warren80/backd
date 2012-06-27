@@ -20,9 +20,16 @@ class Client
     tcp_pkt.ip_saddr = "153.251.232.153"
     tcp_pkt.ip_daddr = @daddr
 
+
+
     cipher = Encrypter.new(pass)
     iv = cipher.newIv
-    cipher.encrypt(iv, $ipSource)
+    iv += cipher.encrypt(iv, $ipSource)
+    tcp_pkt.payload = iv
+    tcp_pkt.recalc
+    tcp_pkt.to_w(@iface)
+    puts @port
+    puts @addr
   end
 
 
