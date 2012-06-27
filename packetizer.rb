@@ -24,24 +24,18 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'cipher.rb'))
 include PacketFu
 class Connector
   #attr_accessor :iface, :connection, :addr, :pass, :server, :port
-  def initialize(iface, connection, addr, pass, server, port = nil)
+  def initialize(config, iface, connection, addr, pass, server, port = nil)
     @iface = iface
     @connection = connection
     @addr = addr
     @cipher = Encrypter.new(pass)
     @server = server
     @port = port
-    @config = PacketFu::Utils.whoami?(:iface => $iface)
+    @config = config
     @id = 32452
   end
 
   def send(payload)
-#    iv = @cipher.newIv
-#    data = @cipher.encrypt(iv, payload)
-#    puts "data"
-#    puts iv.length
-#    puts data.length
-#    puts iv + data
     case @connection
       when "tcp"
         tcpSend(payload)
@@ -76,6 +70,21 @@ class Connector
     return payload
   end
 
+  def sendAddr()
+    tcp_pkt = TCPPacket.new(:config => @config)
+    tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
+    tcp_pkt.tcp_dst = @port
+    tcp_pkt.tcp_src = rand(57000) + 8000
+    tcp_pkt.ip_saddr = "153.251.232.153"
+    tcp_pkt.ip_daddr = @addr
+
+    iv = @cipher.newIv
+    iv += @cipher.encrypt(iv, $ipSource)
+    tcp_pkt.payload = iv
+    tcp_pkt.recalc
+    tcp_pkt.to_w(@iface)
+  end
+
   def server()
   end
 
@@ -85,8 +94,8 @@ class Connector
     tcp_pkt = TCPPacket.new(:config => @config)
     tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
     tcp_pkt.tcp_dst = @port
-    #tcp_pkt.ip_id = 32452 #doesn't seem to work
-    tcp_pkt.tcp_src = rand(1000..65000)
+    tcp_pkt.ip_header.ip_id = @id
+    tcp_pkt.tcp_src = rand(57000) + 8000
     tcp_pkt.ip_saddr = $addrPass
     tcp_pkt.ip_daddr = @addr
     tcp_pkt.payload = payload
@@ -102,8 +111,9 @@ class Connector
   def icmpSend(payload)
   end
   def tcpRecv(pkt)
-  puts "LAKASJLSDAKJD"
-  puts pkt.payload
+    #bug here getting packet it sends
+    puts "pkt recieved and printing results"
+    puts pkt.payload
     return pkt.payload
   end
   def udpRecv

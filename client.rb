@@ -7,40 +7,19 @@ include PacketFu
 
 class Client
   def initialize(iface, tos, addr, pass, port = nil)
-    @iface = iface
-    @tos = tos
-    @port = port
-    @daddr = addr
-    @pass = pass
     config = PacketFu::Utils.whoami?(:iface => $iface)
-    tcp_pkt = TCPPacket.new(:config => config)
-    tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
-    tcp_pkt.tcp_dst = @port
-    tcp_pkt.tcp_src = rand(8000..65000)
-    tcp_pkt.ip_saddr = "153.251.232.153"
-    tcp_pkt.ip_daddr = @daddr
-
-
-
-    cipher = Encrypter.new(pass)
-    iv = cipher.newIv
-    iv += cipher.encrypt(iv, $ipSource)
-    tcp_pkt.payload = iv
-    tcp_pkt.recalc
-    tcp_pkt.to_w(@iface)
-    puts @port
-    puts @addr
+    @conn = Connector.new(config, iface, tos, addr, pass, "client", port)
+    @tos = tos
+    @conn.sendAddr
   end
-
-
 
   def start
      puts "started"
-    conn = Connector.new(@iface, @tos, @daddr, @pass, "client", @port)
+
     Thread.new{ readPackets }
     while (true)
       str = STDIN.gets
-      conn.send(str)
+      @conn.send(str)
       puts "sent"
 
     end
@@ -57,6 +36,8 @@ private
           tcp
         when "udp"
           udp
+        else
+          abort("Client::readPackets @tos not initialized")
       end
     end
   end
@@ -65,7 +46,6 @@ private
     filter = "tcp and dst port " + @port.to_s + " and src " + @daddr
     cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
     cap.stream.each do |p|
-      puts "here"
       pkt = Packet.parse p
       puts tcpRecv(pkt)
     end
