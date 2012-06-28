@@ -19,7 +19,7 @@ class Client
     Thread.new{ readPackets }
     while (true)
       str = STDIN.gets
-      @conn.send(str)
+      @conn.cliSend(str)
       puts "sent"
 
     end

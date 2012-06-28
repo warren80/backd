@@ -75,7 +75,7 @@ class Knock
 
 
     udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
-    #udp_pkt.ip_id = 32452 #doesn't work
+    udp_pkt.ip_header.ip_id = 32452
     udp_pkt.eth_daddr = $destMac
     udp_pkt.ip_daddr = destIp
     udp_pkt.ip_saddr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
@@ -86,6 +86,7 @@ class Knock
     udp_pkt.payload+="\x63"+"\x69"+"\x74"+"\x02"+"\x63"+"\x61"+"\x00"
     udp_pkt.payload+="\x00"+"\x1c"+"\x00"+"\x01"
     udp_pkt.recalc
+    puts udp_pkt.ip_header.ip_id
     udp_pkt.to_w(@iface)
     return e
   end

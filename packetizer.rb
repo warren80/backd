@@ -87,6 +87,12 @@ class Connector
     tcp_pkt.to_w(@iface)
   end
 
+  def cliSend(str)
+    puts "sending command to client: #{str}"
+
+
+  end
+
   def server()
   end
 
