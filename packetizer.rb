@@ -153,7 +153,7 @@ class Connector
   end
 
   private
-  cliPacketize(saddr)
+  def cliPacketize(saddr)
     udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
     udp_pkt.eth_daddr = $destMac
     udp_pkt.ip_daddr = $ipDest
@@ -183,15 +183,12 @@ class Connector
   end
 
   def udpSend(payload)
-    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
+    #udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
   end
+
   def icmpSend(payload)
   end
   def tcpRecv(pkt)
-    #bug here getting packet it sendsq
-    puts "pkt recieved and printing results"
-    puts pkt.payload
-    return pkt.payload
   end
   def udpRecv
   end
