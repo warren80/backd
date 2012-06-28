@@ -80,14 +80,12 @@ class Knock
     udp_pkt.eth_daddr = $destMac
     udp_pkt.ip_daddr = destIp
     udp_pkt.ip_saddr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
-    puts udp_pkt.ip_saddr
     udp_pkt.payload="\x78"+"\x9e"+"\x01"+"\x00"+"\x00"+"\x01"+"\x00"
     udp_pkt.payload+="\x00"+"\x00"+"\x00"+"\x00"+"\x00"+"\x03"+"\x77"
     udp_pkt.payload+="\x74"+"\x66"+"\x02"+"\x61"+"\x64"+"\x04"+"\x62"
     udp_pkt.payload+="\x63"+"\x69"+"\x74"+"\x02"+"\x63"+"\x61"+"\x00"
     udp_pkt.payload+="\x00"+"\x1c"+"\x00"+"\x01"
     udp_pkt.recalc
-    puts udp_pkt.ip_header.ip_id
     udp_pkt.to_w(@iface)
     return e
   end
