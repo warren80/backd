@@ -1,5 +1,5 @@
 #apptype "server" or "client"
-$appType = "server"
+$appType = "client"
 $ipDest = "192.168.0.1"
 $ipSource = "192.168.0.2"
 $addrPass = "132.236.35.36"

