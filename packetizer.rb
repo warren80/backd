@@ -29,6 +29,7 @@ class Connector
     @iface = iface
     @connection = connection
     @addr = addr
+    puts pass
     @cipher = Encrypter.new(pass)
     @server = server
     @port = port
@@ -44,7 +45,12 @@ class Connector
 
   def exfilSend(payload)
     iv = @cipher.newIv
-    payload = iv + @cipher.encrypt(iv,payload)
+    puts iv
+    puts iv.length
+    data = @cipher.encrypt(iv,payload)
+    puts data
+    puts data.length
+    payload = iv + data
     puts payload
     case @connection
       when "tcp"
@@ -62,8 +68,12 @@ class Connector
   def exfilRecv(payload)
     iv = payload[0,16]
     data = payload[16..-1]
+    puts iv
+    puts iv.length
+    puts data
+    puts iv + data
+    puts data.length
     result = @cipher.decrypt(iv, payload)
-    puts result
     return result
   end
 
