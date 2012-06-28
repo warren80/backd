@@ -10,7 +10,6 @@ class Client
     @conn = Connector.new(iface, tos, addr, pass, "client", port)
     @tos = tos
     @conn.sendAddr
-    sleep(5)
   end
 
   def start

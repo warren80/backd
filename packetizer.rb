@@ -88,7 +88,7 @@ class Connector
   end
 
   def cliSend(payload)
-    puts "sending command to client: #{str}"
+    puts "sending command to client: #{payload}"
     udp_pkt = UDPPacket.new(:config => $config, :udp_src => 53, :udp_dst => $cliPass)
     i = 0
     while  payload.length > 0
@@ -96,54 +96,42 @@ class Connector
         a = payload[i]
       end
       if i % 4 == 1
-        b = payload[i+1]
+        b = payload[i]
       end
       if i % 4 == 2
-        c = payload[i+2]
+        c = payload[i]
       end
       if i % 4 == 3
-        d = payload[i+3]
-        s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
-        payload = payload[4..-1]
-        cliPacketize(s_addr)
-        a=b=c=d=10
+        d = payload[i]
         s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
         cliPacketize(s_addr)
-        if payload.length == 0
-          return
+      end
+      if payload[i] == 10
+        puts "here"
+        finalize = i%4
+        case finalize
+          when 0
+            b = c = d = 10
+            s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+            cliPacketize(s_addr)
+            return
+          when 1
+            c = d = 10
+            s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+            cliPacketize(s_addr)
+            return
+          when 2
+            d = 10
+            s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+            cliPacketize(s_addr)
+            return
+          when 3
+            s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
+            cliPacketize(s_addr)
+            return
         end
       end
       i += 1
-    end
-
-    b=c=d=10
-    a = payload[0]
-    payload = payload[1..-1]
-    if payload.length == 0
-      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
-      cliPacketize(s_addr)
-      return
-    end
-    b = payload[0]
-    payload = payload[1..-1]
-    if payload.length == 0
-      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
-      cliPacketize(s_addr)
-      return
-    end
-    c = payload[0]
-    payload = payload[1..-1]
-    if payload.length == 0
-      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
-      cliPacketize(s_addr)
-      return
-    end
-    d = payload[0]
-    payload = payload[1..-1]
-    if payload.length == 0
-      s_addr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
-      cliPacketize(s_addr)
-      return
     end
   end
 
@@ -157,6 +145,7 @@ class Connector
     udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
     udp_pkt.eth_daddr = $destMac
     udp_pkt.ip_daddr = $ipDest
+    puts saddr
     udp_pkt.ip_saddr = saddr
     udp_pkt.payload =  "\x4d"+"\xe2"+"\x81"+"\x82"+"\x00"+"\x01"+"\x00"+"\x00"
     udp_pkt.payload += "\x00"+"\x00"+"\x00"+"\x00"+"\x08"+"\x44"+"\x61"+"\x74"
