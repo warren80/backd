@@ -56,25 +56,10 @@ class Connector
 
   end
 
-  def exfilRecv(pkt)
-    case @connection
-      when "tcp"
-        payload = tcpRecv(pkt)
-      when "udp"
-        payload = udpRecv(pkt)
-      when "icmp"
-        payload = icmpRecv(pkt)
-      else
-        abort "Connector::recv Invalid connection type"
-    end
-
-    #iv = payload[0,16]
-
-    #data = payload[16..-1]
-
-    #result = @cipher.decrypt(iv, data)
-    #return result
-    return payload
+  def exfilRecv(payload)
+    iv = payload[0,16]
+    data = payload[16..-1]
+    return @cipher.decrypt(iv, payload)
   end
 
   def sendAddr()

