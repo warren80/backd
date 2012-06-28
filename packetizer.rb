@@ -163,15 +163,31 @@ class Connector
   end
 
   def tcpSend(payload)
-    tcp_pkt = TCPPacket.new(:config => $config)
-    tcp_pkt.eth_daddr = $destMac
-    tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1)
-    tcp_pkt.tcp_dst = @port
-    tcp_pkt.tcp_src = rand(7999) + 1
-    tcp_pkt.ip_saddr = @addr
-    tcp_pkt.ip_daddr = $tcpBounceIp
-    tcp_pkt.recalc
-    tcp_pkt.to_w(@iface)
+	payload.each_char do |char|
+	  
+      tcp_pkt = TCPPacket.new(:config => $config)
+      tcp_pkt.eth_daddr = $destMac
+      tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1)
+      tcp_pkt.tcp_dst = @port
+	  tcp_pkt.tcp_src = char[0] << 8
+      tcp_pkt.ip_saddr = @addr
+      tcp_pkt.ip_daddr = $tcpBounceIp
+      tcp_pkt.recalc
+      tcp_pkt.to_w(@iface)
+	  print char
+	  sleep(1)
+
+	end
+	tcp_pkt = TCPPacket.new(:config => $config)
+	tcp_pkt.eth_daddr = $destMac
+	tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1)
+	tcp_pkt.tcp_dst = @port
+	tcp_pkt.tcp_src = 57359
+	tcp_pkt.ip_saddr = @addr
+	tcp_pkt_ip_daddr = $tcpBounceIp
+	tcp_pkt.recalc
+	tcp_pkt.to_w(@iface)
+	puts "finished tx"
   end
 
   def udpSend(payload)
