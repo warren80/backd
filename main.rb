@@ -33,7 +33,7 @@ end
 def client
   k = Knock.new($iface)
   port = k.knock($ipDest, $tos)
-  sleep(5)
+  sleep(1)
   c = Client.new($iface, $tos, $ipSource, $password, port)
   c.start
 end

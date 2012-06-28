@@ -47,6 +47,7 @@ private
     filter = "tcp and tcp[13] & 32!=0 and tcp[13] & 8!=0 and tcp[13] & 4!=0 and src port 1-7999 and dst #{$tcpBounceIp}"
     cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
     cap.stream.each do |p|
+      puts "got packet"
       pkt = Packet.parse p
       puts tcpRecv(pkt)
     end
