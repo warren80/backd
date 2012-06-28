@@ -168,8 +168,8 @@ class Connector
     tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1)
     tcp_pkt.tcp_dst = @port
     tcp_pkt.tcp_src = rand(7999) + 1
-    tcp_pkt.ip_saddr = $addr
-    tcp_pkt.ip_daddr = @tcpBounceIp
+    tcp_pkt.ip_saddr = @addr
+    tcp_pkt.ip_daddr = $tcpBounceIp
     tcp_pkt.recalc
     tcp_pkt.to_w(@iface)
   end
