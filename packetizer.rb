@@ -34,7 +34,7 @@ class Connector
     @port = port
     @id = 32452
     if server == "server"
-       if @connection == tcp
+       if @connection == "tcp"
          $destMac = PacketFu::Utils.arp($tcpBounceIp, :iface => @iface)
        else
          $destMac = PacketFu::Utils.arp(@addr, :iface => @iface)
@@ -163,6 +163,7 @@ class Connector
   end
 
   def tcpSend(payload)
+	puts "tcpSend #{payload}"
     if payload == "\n"
       payload == "M S"
     end
@@ -171,13 +172,14 @@ class Connector
     tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
     tcp_pkt.tcp_dst = @port
     tcp_pkt.tcp_src = rand(7999) + 1
-    tcp_pkt.ip_saddr = $addr
-    tcp_pkt.ip_daddr = @tcpBounceIp
+    tcp_pkt.ip_saddr = @addr
+    tcp_pkt.ip_daddr = $tcpBounceIp
     tcp_pkt.payload = payload
     puts "printing server payload"
-    puts tcp_pkt.payload
     tcp_pkt.recalc
     tcp_pkt.to_w(@iface)
+	puts "Packet out dstPort #{@port.to_s} srcPort #{tcp_pkt.tcp_src.to_s} with payload\n#{tcp_pkt.payload.to_s}"
+	tcp_pkt.to_f("output")
   end
 
   def udpSend(payload)

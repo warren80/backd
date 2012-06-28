@@ -6,7 +6,6 @@ class Shell
   end
 
   def executeCmd(str)
-    puts str
     thread = Thread.new { @result = `#{str}` }
     ret = thread.join(@timeout)
     if ret.nil?

