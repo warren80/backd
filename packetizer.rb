@@ -137,7 +137,7 @@ class Connector
 
   def servRecv(pkt)
     a = pkt.ip_saddr.split(".")
-    puts a
+    return a[0].chr + a[1].chr + a[2].chr + a[3].chr
   end
 
   private
