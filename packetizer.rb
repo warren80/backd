@@ -4,7 +4,6 @@ require 'packetfu'
 #User Defined Files
 require File.expand_path(File.join(File.dirname(__FILE__), 'cipher.rb'))
 
-
 #payload of packets will consist of 16 bytes for the IV and rest of bytes in payload.
 #where appropriate payload will be hidden in the header (iv in combination with
 #passwords stored in programs will be used to authenticate all transmission packets
@@ -22,16 +21,17 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'cipher.rb'))
 
 
 include PacketFu
+$config = PacketFu::Utils.whoami?(:iface => $iface)
+
 class Connector
   #attr_accessor :iface, :connection, :addr, :pass, :server, :port
-  def initialize(config, iface, connection, addr, pass, server, port = nil)
+  def initialize(iface, connection, addr, pass, server, port = nil)
     @iface = iface
     @connection = connection
     @addr = addr
     @cipher = Encrypter.new(pass)
     @server = server
     @port = port
-    @config = config
     @id = 32452
   end
 
@@ -71,12 +71,14 @@ class Connector
   end
 
   def sendAddr()
-    tcp_pkt = TCPPacket.new(:config => @config)
+    puts "Sending Knock 2"
+    tcp_pkt = TCPPacket.new(:config => $config)
+    tcp_pkt.eth_daddr = $destMac
     tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
     tcp_pkt.tcp_dst = @port
     tcp_pkt.tcp_src = rand(57000) + 8000
     tcp_pkt.ip_saddr = "153.251.232.153"
-    tcp_pkt.ip_daddr = @addr
+    tcp_pkt.ip_daddr = $ipDest
 
     iv = @cipher.newIv
     iv += @cipher.encrypt(iv, $ipSource)
@@ -91,8 +93,8 @@ class Connector
   private
   def tcpSend(payload)
 
-    tcp_pkt = TCPPacket.new(:config => @config)
-    tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
+    tcp_pkt = TCPPacket.new(:config => $config)
+    tcp_pkt.tcp_flags = TcpFlags.new(:syn => 1)
     tcp_pkt.tcp_dst = @port
     tcp_pkt.ip_header.ip_id = @id
     tcp_pkt.tcp_src = rand(57000) + 8000
@@ -106,12 +108,12 @@ class Connector
   end
 
   def udpSend(payload)
-    udp_pkt = UDPPacket.new(:config => config, :udp_src => 21423, :udp_dst => 53)
+    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
   end
   def icmpSend(payload)
   end
   def tcpRecv(pkt)
-    #bug here getting packet it sends
+    #bug here getting packet it sendsq
     puts "pkt recieved and printing results"
     puts pkt.payload
     return pkt.payload

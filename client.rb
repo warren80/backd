@@ -7,10 +7,10 @@ include PacketFu
 
 class Client
   def initialize(iface, tos, addr, pass, port = nil)
-    config = PacketFu::Utils.whoami?(:iface => $iface)
-    @conn = Connector.new(config, iface, tos, addr, pass, "client", port)
+    @conn = Connector.new(iface, tos, addr, pass, "client", port)
     @tos = tos
     @conn.sendAddr
+    sleep(5)
   end
 
   def start

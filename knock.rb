@@ -47,6 +47,7 @@ class Knock
   end
 
   def knock(destIp, tos)
+    puts "Sending knock 1"
     c = 239
     @tos = tos
     case @tos
@@ -69,9 +70,13 @@ class Knock
       end
     end
 
-    config = PacketFu::Utils.whoami?(:iface => $iface)
-    udp_pkt = UDPPacket.new(:config => config, :udp_src => 21423, :udp_dst => 53)
+    $destMac = PacketFu::Utils.arp(destIp, :iface => @iface)
+
+
+
+    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
     #udp_pkt.ip_id = 32452 #doesn't work
+    udp_pkt.eth_daddr = $destMac
     udp_pkt.ip_daddr = destIp
     udp_pkt.ip_saddr = a.to_s + "." + b.to_s + "." + c.to_s + "." + d.to_s
     puts udp_pkt.ip_saddr
