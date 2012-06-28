@@ -62,7 +62,7 @@ class Connector
   def exfilRecv(payload)
     iv = payload[0,16]
     data = payload[16..-1]
-    result = @cipher.decrypt(iv, payload)
+    result = @cipher.decrypt(iv, data)
     return result
   end
 
