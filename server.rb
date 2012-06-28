@@ -13,7 +13,7 @@ class Server
     @tos = tos
     @port = port
     @saddr = saddr
-    @pass
+    @pass = pass
     @shell = Shell.new(timeout)
 
     filter = "tcp and dst port " + @port.to_s + " and src 153.251.232.153"
