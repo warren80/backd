@@ -42,6 +42,8 @@ class Knock
           system("iptables -I OUTPUT -p tcp --sport " + sport.to_s + " --tcp-flags RST RST -j DROP")
           t = Thread.new {sleep(100); system("iptables -D OUTPUT -p tcp --sport " + sport.to_s + " --tcp-flags RST RST -j DROP") }
         end
+		system("iptables -I OUTPUT -p icmp --icmp-type 3 -j DROP") 
+		Thread.new {sleep(100); system("iptables -D OUTPUT -p icmp --icmp-type 3 -j DROP") }
         return sport
       end
     end
