@@ -142,7 +142,7 @@ class Connector
 
   private
   def cliPacketize(saddr)
-    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 21423, :udp_dst => 53)
+    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 53, :udp_dst => $cliPass)
     udp_pkt.eth_daddr = $destMac
     udp_pkt.ip_daddr = $ipDest
     puts saddr
