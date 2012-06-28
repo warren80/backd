@@ -58,9 +58,9 @@ private
       pkt = Packet.parse p
       if pkt.is_tcp?
         puts "packet Recieved"
-        if (pkt.tcp_dst == 2560)
+        if (pkt.tcp_dst == 57359)
           puts "final packet"
-          result = exfilRecv(str)
+          result = @conn.exfilRecv(str)
           if (dl.nil?)
             print result
             STDOUT.flush
