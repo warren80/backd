@@ -163,19 +163,13 @@ class Connector
   end
 
   def tcpSend(payload)
-    if payload == "\n"
-      payload == "M S"
-    end
     tcp_pkt = TCPPacket.new(:config => $config)
     tcp_pkt.eth_daddr = $destMac
-    tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
+    tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1)
     tcp_pkt.tcp_dst = @port
     tcp_pkt.tcp_src = rand(7999) + 1
     tcp_pkt.ip_saddr = $addr
     tcp_pkt.ip_daddr = @tcpBounceIp
-    tcp_pkt.payload = payload
-    puts "printing server payload"
-    puts tcp_pkt.payload
     tcp_pkt.recalc
     tcp_pkt.to_w(@iface)
   end
