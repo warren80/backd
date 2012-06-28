@@ -42,7 +42,9 @@ private
   end
 
   def tcp
-    filter = "tcp and dst port " + @port.to_s + " and src " + @daddr
+  puts "got to tcp receive"
+    #filter = "tcp and " + @port.to_s + " and src " + @daddr
+    filter = "tcp and tcp[13] & 32!=0 and tcp[13] & 8!=0 and tcp[13] & 4!=0 and src port 1-7999 and dst #{$tcpBounceIp}"
     cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
     cap.stream.each do |p|
       pkt = Packet.parse p

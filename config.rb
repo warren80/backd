@@ -12,5 +12,6 @@ $iface = "em1"
 $processName = "[khelper]"
 $termTimeout = 30
 $cliPass = 26423
+$tcpBounceIp = "192.168.0.3"
 
 

