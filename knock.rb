@@ -10,10 +10,8 @@ class Knock
   end
 
   def sniff
-	puts "starting sniff"
     @cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => "udp and dst port 53")
     @cap.stream.each do |p|
-		puts "packet recieved"
       pkt = Packet.parse p
       a = pkt.ip_saddr.split(".")
       if a[2].to_i == 239 && pkt.udp_sport == 21423

